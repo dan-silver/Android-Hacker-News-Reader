@@ -51,6 +51,7 @@ public class MainActivity extends FragmentActivity
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, firstFragment).commit();
         }
+        onArticleSelected(0); //by default select first article
     }
 
     public void onArticleSelected(int position) {
