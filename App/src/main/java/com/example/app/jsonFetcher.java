@@ -7,8 +7,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -26,7 +24,7 @@ public class jsonFetcher {
         this.URL = URL;
     }
 
-    public JSONArray fetchJSON() {
+    public JSONObject fetchJSON() {
         Log.v(TAG, "Starting JSON fetching...");
         DefaultHttpClient httpClient = new DefaultHttpClient(new BasicHttpParams());
         HttpPost httppost = new HttpPost(URL);
@@ -58,11 +56,6 @@ public class jsonFetcher {
 
             }
         }
-        try {
-            return jObject.getJSONArray("items");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return jObject;
     }
 }

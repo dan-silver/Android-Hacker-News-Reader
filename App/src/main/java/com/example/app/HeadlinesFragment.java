@@ -114,7 +114,12 @@ public class HeadlinesFragment extends ListFragment {
 
         protected JSONArray doInBackground(Void... params) {
             jsonFetcher fetcher = new jsonFetcher("http://api.ihackernews.com/page?format=json&page=1");
-            return fetcher.fetchJSON();
+            try {
+                return fetcher.fetchJSON().getJSONArray("items");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return null;
         }
 
         protected void onPostExecute(JSONArray a) {
