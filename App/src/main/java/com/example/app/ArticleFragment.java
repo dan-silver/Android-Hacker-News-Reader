@@ -22,6 +22,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.json.JSONException;
+
 public class ArticleFragment extends Fragment {
     final static String ARG_POSITION = "position";
     int mCurrentPosition = -1;
@@ -60,8 +62,12 @@ public class ArticleFragment extends Fragment {
     }
 
     public void updateArticleView(int position) {
-        TextView article = (TextView) getActivity().findViewById(R.id.title);
-        article.setText(Ipsum.Articles[position]);
+        TextView article = (TextView) getActivity().findViewById(R.id.articleTitle);
+        try {
+            article.setText(MainActivity.objects[position].getString("title"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         mCurrentPosition = position;
     }
 
