@@ -15,19 +15,37 @@
  */
 package com.example.app;
 
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
+
+import org.json.JSONArray;
+
+import java.util.concurrent.ExecutionException;
 
 
 public class MainActivity extends FragmentActivity
         implements HeadlinesFragment.OnHeadlineSelectedListener {
-
+    static String TAG = "Silver";
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.news_articles);
+        JSONArray j;
+        try {
+            j = (new LoadJsonTask()).execute().get();
+            Log.v(TAG, j.toString());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+
 
         // Check whether the activity is using the layout version with
         // the fragment_container FrameLayout. If so, we must add the first fragment
@@ -48,8 +66,7 @@ public class MainActivity extends FragmentActivity
             firstFragment.setArguments(getIntent().getExtras());
 
             // Add the fragment to the 'fragment_container' FrameLayout
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, firstFragment).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, firstFragment).commit();
         }
         onArticleSelected(0); //by default select first article
     }
@@ -58,8 +75,7 @@ public class MainActivity extends FragmentActivity
         // The user selected the headline of an article from the HeadlinesFragment
 
         // Capture the article fragment from the activity layout
-        ArticleFragment articleFrag = (ArticleFragment)
-                getSupportFragmentManager().findFragmentById(R.id.article_fragment);
+        ArticleFragment articleFrag = (ArticleFragment) getSupportFragmentManager().findFragmentById(R.id.article_fragment);
 
         if (articleFrag != null) {
             // If article frag is available, we're in two-pane layout...
@@ -86,4 +102,21 @@ public class MainActivity extends FragmentActivity
             transaction.commit();
         }
     }
+    private class LoadJsonTask extends AsyncTask<Void, Void, JSONArray> {
+        ProgressDialog dialog;
+
+        protected void onPreExecute() {
+            dialog = ProgressDialog.show(MainActivity.this, null, "Fetching updates");
+        }
+
+        protected JSONArray doInBackground(Void... params) {
+            jsonFetcher j = new jsonFetcher("http://api.ihackernews.com/page?format=json&page=1");
+            return j.fetchJSON();
+        }
+
+        protected void onPostExecute(JSONArray a) {
+            dialog.dismiss();
+        }
+    }
+
 }

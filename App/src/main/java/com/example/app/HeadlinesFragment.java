@@ -16,12 +16,16 @@
 package com.example.app;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import org.json.JSONArray;
 
 public class HeadlinesFragment extends ListFragment {
     OnHeadlineSelectedListener mCallback;
@@ -79,3 +83,4 @@ public class HeadlinesFragment extends ListFragment {
         getListView().setItemChecked(position, true);
     }
 }
+
