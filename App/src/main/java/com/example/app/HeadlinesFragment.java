@@ -16,20 +16,11 @@
 package com.example.app;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.concurrent.ExecutionException;
 
 public class HeadlinesFragment extends ListFragment {
     private static String TAG = "Silver";
@@ -44,35 +35,16 @@ public class HeadlinesFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // We need to use a different list item layout for devices older than Honeycomb
-        int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ? android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
-        JSONArray data = null;
-        try {
-            data = (new LoadJsonTask()).execute().get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } finally {
-            Log.v(TAG, "Finished loading JSON!");
-            assert data != null;
-            JSONObject[] objects = new JSONObject[data.length()];
-            for (int i = 0; i < data.length(); i++) {
-                try {
-                    objects[i] = (JSONObject) data.get(i);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-
-            // Create an array adapter for the list view, using the Ipsum headlines array
-            SimpleArrayAdapter dataAdapter = new SimpleArrayAdapter(getActivity(), layout, objects);
-            setListAdapter(dataAdapter);
-        }
     }
 
+    public void createList() {
+        // We need to use a different list item layout for devices older than Honeycomb
+        int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ? android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
+
+        // Create an array adapter for the list view, using the Ipsum headlines array
+        SimpleArrayAdapter dataAdapter = new SimpleArrayAdapter(getActivity(), layout, MainActivity.objects);
+        setListAdapter(dataAdapter);
+    }
     @Override
     public void onStart() {
         super.onStart();
@@ -105,25 +77,6 @@ public class HeadlinesFragment extends ListFragment {
 
         // Set the item as checked to be highlighted when in two-pane layout
         getListView().setItemChecked(position, true);
-    }
-    private class LoadJsonTask extends AsyncTask<Void, Void, JSONArray> {
-        ProgressDialog dialog;
-
-        protected void onPreExecute() {
-        }
-
-        protected JSONArray doInBackground(Void... params) {
-            jsonFetcher fetcher = new jsonFetcher("http://api.ihackernews.com/page?format=json&page=1");
-            try {
-                return fetcher.fetchJSON().getJSONArray("items");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        protected void onPostExecute(JSONArray a) {
-        }
     }
 }
 
