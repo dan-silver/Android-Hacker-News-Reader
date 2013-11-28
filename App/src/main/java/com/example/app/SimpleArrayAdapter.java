@@ -28,11 +28,15 @@ public class SimpleArrayAdapter extends ArrayAdapter<JSONObject> {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = inflater.inflate(R.layout.article_headline, parent, false);
-        TextView textView = (TextView) rowView.findViewById(R.id.title);
-        try {
-            textView.setText((String) values[position].get("title"));
-        } catch (JSONException e) {
-            e.printStackTrace();
+        if (rowView != null) {
+            TextView titleTextView = (TextView) rowView.findViewById(R.id.title);
+            TextView commentsTextView = (TextView) rowView.findViewById(R.id.comments);
+            try {
+                titleTextView.setText((String) values[position].get("title"));
+                commentsTextView.setText(values[position].get("commentCount") + " comments");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
         return rowView;
     }
