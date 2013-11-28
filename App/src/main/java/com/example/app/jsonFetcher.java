@@ -28,7 +28,7 @@ public class jsonFetcher {
 
     public JSONArray fetchJSON() {
         Log.v(TAG, "Starting JSON fetching...");
-        DefaultHttpClient httpclient = new DefaultHttpClient(new BasicHttpParams());
+        DefaultHttpClient httpClient = new DefaultHttpClient(new BasicHttpParams());
         HttpPost httppost = new HttpPost(URL);
 
         httppost.setHeader("Content-type", "application/json");
@@ -36,7 +36,7 @@ public class jsonFetcher {
         InputStream inputStream = null;
         JSONObject jObject = null;
         try {
-            HttpResponse response = httpclient.execute(httppost);
+            HttpResponse response = httpClient.execute(httppost);
             HttpEntity entity = response.getEntity();
 
             inputStream = entity.getContent();

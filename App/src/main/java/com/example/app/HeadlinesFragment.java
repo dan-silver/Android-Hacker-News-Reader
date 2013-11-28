@@ -16,13 +16,23 @@
 package com.example.app;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.concurrent.ExecutionException;
+
 public class HeadlinesFragment extends ListFragment {
+    private static String TAG = "Silver";
     OnHeadlineSelectedListener mCallback;
 
     // The container Activity must implement this interface so the frag can deliver messages
@@ -38,9 +48,29 @@ public class HeadlinesFragment extends ListFragment {
         // We need to use a different list item layout for devices older than Honeycomb
         int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
                 android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
+        JSONArray data = null;
+        try {
+            data = (new LoadJsonTask()).execute().get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } finally {
+            Log.v(TAG, "Finished loading JSON!");
+            String[] titles = new String[data.length()];
+            for (int i = 0; i < data.length(); i++) {
+                try {
+                    titles[i] = (String) ((JSONObject) data.get(i)).get("title");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
 
-        // Create an array adapter for the list view, using the Ipsum headlines array
-        setListAdapter(new SimpleArrayAdapter(getActivity(), layout, Ipsum.Headlines));
+
+            // Create an array adapter for the list view, using the Ipsum headlines array
+            SimpleArrayAdapter dataAdapter = new SimpleArrayAdapter(getActivity(), layout, titles);
+            setListAdapter(dataAdapter);
+        }
     }
 
     @Override
@@ -73,9 +103,22 @@ public class HeadlinesFragment extends ListFragment {
         // Notify the parent activity of selected item
         mCallback.onArticleSelected(position);
 
-
         // Set the item as checked to be highlighted when in two-pane layout
         getListView().setItemChecked(position, true);
+    }
+    private class LoadJsonTask extends AsyncTask<Void, Void, JSONArray> {
+        ProgressDialog dialog;
+
+        protected void onPreExecute() {
+        }
+
+        protected JSONArray doInBackground(Void... params) {
+            jsonFetcher fetcher = new jsonFetcher("http://api.ihackernews.com/page?format=json&page=1");
+            return fetcher.fetchJSON();
+        }
+
+        protected void onPostExecute(JSONArray a) {
+        }
     }
 }
 
