@@ -15,16 +15,9 @@
  */
 package com.example.app;
 
-import android.app.ProgressDialog;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
-
-import org.json.JSONArray;
-
-import java.util.concurrent.ExecutionException;
 
 
 public class MainActivity extends FragmentActivity
@@ -35,18 +28,7 @@ public class MainActivity extends FragmentActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.news_articles);
-        JSONArray j;
-        try {
-            j = (new LoadJsonTask()).execute().get();
-            Log.v(TAG, j.toString());
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-
-
-
+        
         // Check whether the activity is using the layout version with
         // the fragment_container FrameLayout. If so, we must add the first fragment
         if (findViewById(R.id.fragment_container) != null) {
@@ -102,21 +84,4 @@ public class MainActivity extends FragmentActivity
             transaction.commit();
         }
     }
-    private class LoadJsonTask extends AsyncTask<Void, Void, JSONArray> {
-        ProgressDialog dialog;
-
-        protected void onPreExecute() {
-            dialog = ProgressDialog.show(MainActivity.this, null, "Fetching updates");
-        }
-
-        protected JSONArray doInBackground(Void... params) {
-            jsonFetcher j = new jsonFetcher("http://api.ihackernews.com/page?format=json&page=1");
-            return j.fetchJSON();
-        }
-
-        protected void onPostExecute(JSONArray a) {
-            dialog.dismiss();
-        }
-    }
-
 }
