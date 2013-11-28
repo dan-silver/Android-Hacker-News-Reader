@@ -52,8 +52,8 @@ public class jsonFetcher {
             try {
                 if (inputStream != null) inputStream.close();
 
-            } catch (Exception squish) {
-
+            } catch (Exception e) {
+                Log.e(TAG, e.toString());
             }
         }
         return jObject;
