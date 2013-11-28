@@ -46,8 +46,7 @@ public class HeadlinesFragment extends ListFragment {
         super.onCreate(savedInstanceState);
 
         // We need to use a different list item layout for devices older than Honeycomb
-        int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
-                android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
+        int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ? android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
         JSONArray data = null;
         try {
             data = (new LoadJsonTask()).execute().get();
@@ -57,10 +56,11 @@ public class HeadlinesFragment extends ListFragment {
             e.printStackTrace();
         } finally {
             Log.v(TAG, "Finished loading JSON!");
-            String[] titles = new String[data.length()];
+            assert data != null;
+            JSONObject[] objects = new JSONObject[data.length()];
             for (int i = 0; i < data.length(); i++) {
                 try {
-                    titles[i] = (String) ((JSONObject) data.get(i)).get("title");
+                    objects[i] = (JSONObject) data.get(i);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -68,7 +68,7 @@ public class HeadlinesFragment extends ListFragment {
 
 
             // Create an array adapter for the list view, using the Ipsum headlines array
-            SimpleArrayAdapter dataAdapter = new SimpleArrayAdapter(getActivity(), layout, titles);
+            SimpleArrayAdapter dataAdapter = new SimpleArrayAdapter(getActivity(), layout, objects);
             setListAdapter(dataAdapter);
         }
     }

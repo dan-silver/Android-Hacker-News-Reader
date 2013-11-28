@@ -10,11 +10,14 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class SimpleArrayAdapter extends ArrayAdapter<String> {
-    private final Context context;
-    private final String[] values;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-    public SimpleArrayAdapter(Context context, int layout, String[] values) {
+public class SimpleArrayAdapter extends ArrayAdapter<JSONObject> {
+    private final Context context;
+    private final JSONObject[] values;
+
+    public SimpleArrayAdapter(Context context, int layout, JSONObject[] values) {
         super(context, R.layout.article_headline, layout, values);
         this.context = context;
         this.values = values;
@@ -26,7 +29,11 @@ public class SimpleArrayAdapter extends ArrayAdapter<String> {
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = inflater.inflate(R.layout.article_headline, parent, false);
         TextView textView = (TextView) rowView.findViewById(R.id.title);
-        textView.setText(values[position]);
+        try {
+            textView.setText((String) values[position].get("title"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         return rowView;
     }
 }
