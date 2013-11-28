@@ -15,12 +15,10 @@
  */
 package com.example.app;
 
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,7 +31,6 @@ public class MainActivity extends FragmentActivity
         implements HeadlinesFragment.OnHeadlineSelectedListener {
     static String TAG = "Silver";
     static JSONObject[] objects;
-    static JSONArray rawData;
 
     /** Called when the activity is first created. */
     @Override
@@ -41,47 +38,15 @@ public class MainActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.news_articles);
 
-        try {
-            if (rawData == null) rawData = (new LoadJsonTask()).execute().get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } finally {
-            Log.v(TAG, "Finished loading JSON!");
-            if (rawData != null) {
-                objects = new JSONObject[rawData.length()];
-                for (int i = 0; i < rawData.length(); i++) {
-                    try {
-                        objects[i] = (JSONObject) rawData.get(i);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
+        if (savedInstanceState != null) return;
+        if (objects == null) {
+            try {
+                objects = (new LoadJsonTask()).execute().get();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
             }
-            HeadlinesFragment headlines = (HeadlinesFragment) getSupportFragmentManager().findFragmentById(R.id.headlines_fragment);
-            headlines.createList();
-
-            // Check whether the activity is using the layout version with
-            // the fragment_container FrameLayout. If so, we must add the first fragment
-            if (findViewById(R.id.fragment_container) != null) {
-
-                // However, if we're being restored from a previous state,
-                // then we don't need to do anything and should return or else
-                // we could end up with overlapping fragments.
-                if (savedInstanceState != null) return;
-
-                // Create an instance of ExampleFragment
-                HeadlinesFragment firstFragment = new HeadlinesFragment();
-
-                // In case this activity was started with special instructions from an Intent,
-                // pass the Intent's extras to the fragment as arguments
-                firstFragment.setArguments(getIntent().getExtras());
-
-                // Add the fragment to the 'fragment_container' FrameLayout
-                getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, firstFragment).commit();
-            }
-            onArticleSelected(0); //by default select first article
         }
     }
 
@@ -116,21 +81,54 @@ public class MainActivity extends FragmentActivity
             transaction.commit();
         }
     }
-    private class LoadJsonTask extends AsyncTask<Void, Void, JSONArray> {
-        ProgressDialog dialog;
+    private class LoadJsonTask extends AsyncTask<Void, Void, JSONObject[]> {
 
         protected void onPreExecute() {}
 
-        protected JSONArray doInBackground(Void... params) {
+        protected JSONObject[] doInBackground(Void... params) {
             jsonFetcher fetcher = new jsonFetcher("http://api.ihackernews.com/page?format=json&page=1");
+            JSONArray array;
             try {
-                return fetcher.fetchJSON().getJSONArray("items");
+                array = fetcher.fetchJSON().getJSONArray("items");
+                JSONObject[] newData = new JSONObject[array.length()];
+                for (int i = 0; i < array.length(); i++) {
+                    try {
+                        newData[i] = (JSONObject) array.get(i);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                return newData;
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
             return null;
         }
 
-        protected void onPostExecute(JSONArray a) {}
+        protected void onPostExecute(JSONObject[] newData) {
+            if (findViewById(R.id.fragment_container) != null) {
+
+                // However, if we're being restored from a previous state,
+                // then we don't need to do anything and should return or else
+                // we could end up with overlapping fragments.
+
+                // Create an instance of ExampleFragment
+                HeadlinesFragment firstFragment = new HeadlinesFragment();
+
+                // In case this activity was started with special instructions from an Intent,
+                // pass the Intent's extras to the fragment as arguments
+                firstFragment.setArguments(getIntent().getExtras());
+
+                // Add the fragment to the 'fragment_container' FrameLayout
+                getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, firstFragment).commit();
+            } else {
+                HeadlinesFragment headlines = (HeadlinesFragment) getSupportFragmentManager().findFragmentById(R.id.headlines_fragment);
+                headlines.createList();
+            }
+
+        }
     }
 }
