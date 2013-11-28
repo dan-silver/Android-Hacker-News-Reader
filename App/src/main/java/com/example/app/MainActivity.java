@@ -33,27 +33,30 @@ public class MainActivity extends FragmentActivity
         implements HeadlinesFragment.OnHeadlineSelectedListener {
     static String TAG = "Silver";
     static JSONObject[] objects;
+    static JSONArray rawData;
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.news_articles);
 
-        JSONArray data = null;
         try {
-            data = (new LoadJsonTask()).execute().get();
+            if (rawData == null) rawData = (new LoadJsonTask()).execute().get();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
         } finally {
             Log.v(TAG, "Finished loading JSON!");
-            objects = new JSONObject[data.length()];
-            for (int i = 0; i < data.length(); i++) {
-                try {
-                    objects[i] = (JSONObject) data.get(i);
-                } catch (JSONException e) {
-                    e.printStackTrace();
+            if (rawData != null) {
+                objects = new JSONObject[rawData.length()];
+                for (int i = 0; i < rawData.length(); i++) {
+                    try {
+                        objects[i] = (JSONObject) rawData.get(i);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
             HeadlinesFragment headlines = (HeadlinesFragment) getSupportFragmentManager().findFragmentById(R.id.headlines_fragment);
@@ -66,9 +69,7 @@ public class MainActivity extends FragmentActivity
                 // However, if we're being restored from a previous state,
                 // then we don't need to do anything and should return or else
                 // we could end up with overlapping fragments.
-                if (savedInstanceState != null) {
-                    return;
-                }
+                if (savedInstanceState != null) return;
 
                 // Create an instance of ExampleFragment
                 HeadlinesFragment firstFragment = new HeadlinesFragment();
