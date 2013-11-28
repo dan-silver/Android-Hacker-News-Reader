@@ -16,16 +16,11 @@
 package com.example.app;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-
-import org.json.JSONArray;
 
 public class HeadlinesFragment extends ListFragment {
     OnHeadlineSelectedListener mCallback;
@@ -45,7 +40,7 @@ public class HeadlinesFragment extends ListFragment {
                 android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
 
         // Create an array adapter for the list view, using the Ipsum headlines array
-        setListAdapter(new ArrayAdapter<String>(getActivity(), layout, Ipsum.Headlines));
+        setListAdapter(new SimpleArrayAdapter(getActivity(), layout, Ipsum.Headlines));
     }
 
     @Override
