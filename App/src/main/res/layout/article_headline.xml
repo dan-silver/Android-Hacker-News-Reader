@@ -24,6 +24,7 @@
         android:layout_alignParentTop="true"
         android:layout_toLeftOf="@+id/title"
         android:layout_marginRight="318dp"
-        android:src="@android:drawable/ic_menu_gallery"/>
+        android:src="@android:drawable/ic_menu_gallery"
+        android:contentDescription="@string/imageDescription" />
 
 </RelativeLayout>
